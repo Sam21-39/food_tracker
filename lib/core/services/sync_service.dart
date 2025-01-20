@@ -1,62 +1,57 @@
-import 'package:food_tracker/core/config/supabase_config.dart';
 import 'package:food_tracker/shared/models/food_entry.dart';
+import 'package:flutter/foundation.dart';
+import 'package:food_tracker/core/services/auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:food_tracker/core/config/objectbox.dart';
 
 class SyncService {
-  static const String _tableName = 'food_entries';
+  final AuthService _auth;
+  final SupabaseClient _supabase;
+  final ObjectBox _objectBox;
 
-  Future<void> syncFoodEntry(FoodEntry entry) async {
+  SyncService({
+    required AuthService auth,
+    required SupabaseClient supabase,
+    required ObjectBox objectBox,
+  })  : _auth = auth,
+        _supabase = supabase,
+        _objectBox = objectBox;
+
+  Future<void> syncAllEntries(List<FoodEntry> entries) async {
+    for (final entry in entries) {
+      if (!entry.isSynced) {
+        await _syncEntry(entry);
+      }
+    }
+  }
+
+  Future<void> _syncEntry(FoodEntry entry) async {
     try {
-      await SupabaseConfig.client.from(_tableName).upsert({
+      final userId = await _auth.getCurrentUserId();
+      if (userId == null) return;
+
+      final data = {
         'uuid': entry.uuid,
         'name': entry.name,
         'category': entry.category,
         'is_vegetarian': entry.isVegetarian,
         'image_url': entry.imageUrl,
         'timestamp': entry.timestamp.toIso8601String(),
-      });
+        'user_id': userId,
+      };
+
+      await _supabase.from('food_entries').upsert(data);
+      entry.isSynced = true;
+      await _objectBox.storeFoodEntry(entry);
     } catch (e) {
-      // Handle error or retry later
-      print('Error syncing food entry: $e');
+      debugPrint('Error syncing entry: $e');
+      rethrow;
     }
   }
 
-  Future<List<FoodEntry>> fetchRemoteEntries() async {
-    try {
-      final response = await SupabaseConfig.client
-          .from(_tableName)
-          .select()
-          .order('timestamp', ascending: false);
-
-      return (response as List)
-          .map((json) => FoodEntry.fromJson({
-                'uuid': json['uuid'],
-                'name': json['name'],
-                'category': json['category'],
-                'isVegetarian': json['is_vegetarian'],
-                'imageUrl': json['image_url'],
-                'timestamp': json['timestamp'],
-                'isSynced': true,
-              }))
-          .toList();
-    } catch (e) {
-      print('Error fetching remote entries: $e');
-      return [];
-    }
-  }
-
-  Future<void> syncAllLocalEntries(List<FoodEntry> entries) async {
-    for (var entry in entries) {
-      if (!entry.isSynced) {
-        await syncFoodEntry(entry);
-      }
-    }
-  }
-
-  Future<void> deleteRemoteEntry(String uuid) async {
-    try {
-      await SupabaseConfig.client.from(_tableName).delete().eq('uuid', uuid);
-    } catch (e) {
-      print('Error deleting remote entry: $e');
+  Future<void> syncFoodEntry(FoodEntry entry) async {
+    if (!entry.isSynced) {
+      await _syncEntry(entry);
     }
   }
 }

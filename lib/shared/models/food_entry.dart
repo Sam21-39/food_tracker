@@ -25,8 +25,8 @@ class FoodEntry {
     this.imageUrl,
     DateTime? timestamp,
     this.isSynced = false,
-  })  : this.uuid = uuid ?? const Uuid().v4(),
-        this.timestamp = timestamp ?? DateTime.now();
+  })  : uuid = uuid ?? const Uuid().v4(),
+        timestamp = timestamp ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
         'uuid': uuid,

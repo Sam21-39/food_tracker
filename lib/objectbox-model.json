@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:5036176211723781960",
-      "lastPropertyId": "8:8812083681162892971",
+      "lastPropertyId": "15:9199700537206097079",
       "name": "FoodEntry",
       "properties": [
         {
@@ -15,20 +15,8 @@
           "flags": 1
         },
         {
-          "id": "2:241851058416172079",
-          "name": "uuid",
-          "type": 9,
-          "flags": 2080,
-          "indexId": "1:6616730479755630431"
-        },
-        {
           "id": "3:1011917457897121981",
           "name": "name",
-          "type": 9
-        },
-        {
-          "id": "4:3969937394287829318",
-          "name": "category",
           "type": 9
         },
         {
@@ -37,33 +25,55 @@
           "type": 1
         },
         {
-          "id": "6:8875568746158179980",
+          "id": "8:8812083681162892971",
+          "name": "isSynced",
+          "type": 1
+        },
+        {
+          "id": "12:4017393242638760442",
+          "name": "uuid",
+          "type": 9,
+          "flags": 2080,
+          "indexId": "2:1983838474339729808"
+        },
+        {
+          "id": "13:1413304517881498096",
+          "name": "category",
+          "type": 9
+        },
+        {
+          "id": "14:5906325662364802156",
           "name": "imageUrl",
           "type": 9
         },
         {
-          "id": "7:2237155335761880813",
+          "id": "15:9199700537206097079",
           "name": "timestamp",
           "type": 10
-        },
-        {
-          "id": "8:8812083681162892971",
-          "name": "isSynced",
-          "type": 1
         }
       ],
       "relations": []
     }
   ],
   "lastEntityId": "1:5036176211723781960",
-  "lastIndexId": "1:6616730479755630431",
+  "lastIndexId": "2:1983838474339729808",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
-  "retiredIndexUids": [],
-  "retiredPropertyUids": [],
+  "retiredIndexUids": [
+    6616730479755630431
+  ],
+  "retiredPropertyUids": [
+    241851058416172079,
+    3969937394287829318,
+    8875568746158179980,
+    2237155335761880813,
+    4910914262272488999,
+    8180069835351602645,
+    1969494280172700598
+  ],
   "retiredRelationUids": [],
   "version": 1
 }

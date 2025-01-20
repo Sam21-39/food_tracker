@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(1, 5036176211723781960),
       name: 'FoodEntry',
-      lastPropertyId: const obx_int.IdUid(8, 8812083681162892971),
+      lastPropertyId: const obx_int.IdUid(15, 9199700537206097079),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -31,19 +31,8 @@ final _entities = <obx_int.ModelEntity>[
             type: 6,
             flags: 1),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 241851058416172079),
-            name: 'uuid',
-            type: 9,
-            flags: 2080,
-            indexId: const obx_int.IdUid(1, 6616730479755630431)),
-        obx_int.ModelProperty(
             id: const obx_int.IdUid(3, 1011917457897121981),
             name: 'name',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 3969937394287829318),
-            name: 'category',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
@@ -52,19 +41,30 @@ final _entities = <obx_int.ModelEntity>[
             type: 1,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 8875568746158179980),
+            id: const obx_int.IdUid(8, 8812083681162892971),
+            name: 'isSynced',
+            type: 1,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(12, 4017393242638760442),
+            name: 'uuid',
+            type: 9,
+            flags: 2080,
+            indexId: const obx_int.IdUid(2, 1983838474339729808)),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(13, 1413304517881498096),
+            name: 'category',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(14, 5906325662364802156),
             name: 'imageUrl',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(7, 2237155335761880813),
+            id: const obx_int.IdUid(15, 9199700537206097079),
             name: 'timestamp',
             type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(8, 8812083681162892971),
-            name: 'isSynced',
-            type: 1,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -107,12 +107,20 @@ obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
       lastEntityId: const obx_int.IdUid(1, 5036176211723781960),
-      lastIndexId: const obx_int.IdUid(1, 6616730479755630431),
+      lastIndexId: const obx_int.IdUid(2, 1983838474339729808),
       lastRelationId: const obx_int.IdUid(0, 0),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
-      retiredIndexUids: const [],
-      retiredPropertyUids: const [],
+      retiredIndexUids: const [6616730479755630431],
+      retiredPropertyUids: const [
+        241851058416172079,
+        3969937394287829318,
+        8875568746158179980,
+        2237155335761880813,
+        4910914262272488999,
+        8180069835351602645,
+        1969494280172700598
+      ],
       retiredRelationUids: const [],
       modelVersion: 5,
       modelVersionParserMinimum: 5,
@@ -128,21 +136,21 @@ obx_int.ModelDefinition getObjectBoxModel() {
           object.id = id;
         },
         objectToFB: (FoodEntry object, fb.Builder fbb) {
-          final uuidOffset = fbb.writeString(object.uuid);
           final nameOffset = fbb.writeString(object.name);
+          final uuidOffset = fbb.writeString(object.uuid);
           final categoryOffset = fbb.writeString(object.category);
           final imageUrlOffset = object.imageUrl == null
               ? null
               : fbb.writeString(object.imageUrl!);
-          fbb.startTable(9);
+          fbb.startTable(16);
           fbb.addInt64(0, object.id);
-          fbb.addOffset(1, uuidOffset);
           fbb.addOffset(2, nameOffset);
-          fbb.addOffset(3, categoryOffset);
           fbb.addBool(4, object.isVegetarian);
-          fbb.addOffset(5, imageUrlOffset);
-          fbb.addInt64(6, object.timestamp.millisecondsSinceEpoch);
           fbb.addBool(7, object.isSynced);
+          fbb.addOffset(11, uuidOffset);
+          fbb.addOffset(12, categoryOffset);
+          fbb.addOffset(13, imageUrlOffset);
+          fbb.addInt64(14, object.timestamp.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -152,17 +160,17 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final idParam =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
           final uuidParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 6, '');
+              .vTableGet(buffer, rootOffset, 26, '');
           final nameParam = const fb.StringReader(asciiOptimization: true)
               .vTableGet(buffer, rootOffset, 8, '');
           final categoryParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGet(buffer, rootOffset, 10, '');
+              .vTableGet(buffer, rootOffset, 28, '');
           final isVegetarianParam =
               const fb.BoolReader().vTableGet(buffer, rootOffset, 12, false);
           final imageUrlParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGetNullable(buffer, rootOffset, 14);
+              .vTableGetNullable(buffer, rootOffset, 30);
           final timestampParam = DateTime.fromMillisecondsSinceEpoch(
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0));
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 32, 0));
           final isSyncedParam =
               const fb.BoolReader().vTableGet(buffer, rootOffset, 18, false);
           final object = FoodEntry(
@@ -188,31 +196,31 @@ class FoodEntry_ {
   static final id =
       obx.QueryIntegerProperty<FoodEntry>(_entities[0].properties[0]);
 
-  /// See [FoodEntry.uuid].
-  static final uuid =
-      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[1]);
-
   /// See [FoodEntry.name].
   static final name =
-      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[2]);
-
-  /// See [FoodEntry.category].
-  static final category =
-      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[3]);
+      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[1]);
 
   /// See [FoodEntry.isVegetarian].
   static final isVegetarian =
-      obx.QueryBooleanProperty<FoodEntry>(_entities[0].properties[4]);
-
-  /// See [FoodEntry.imageUrl].
-  static final imageUrl =
-      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[5]);
-
-  /// See [FoodEntry.timestamp].
-  static final timestamp =
-      obx.QueryDateProperty<FoodEntry>(_entities[0].properties[6]);
+      obx.QueryBooleanProperty<FoodEntry>(_entities[0].properties[2]);
 
   /// See [FoodEntry.isSynced].
   static final isSynced =
-      obx.QueryBooleanProperty<FoodEntry>(_entities[0].properties[7]);
+      obx.QueryBooleanProperty<FoodEntry>(_entities[0].properties[3]);
+
+  /// See [FoodEntry.uuid].
+  static final uuid =
+      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[4]);
+
+  /// See [FoodEntry.category].
+  static final category =
+      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[5]);
+
+  /// See [FoodEntry.imageUrl].
+  static final imageUrl =
+      obx.QueryStringProperty<FoodEntry>(_entities[0].properties[6]);
+
+  /// See [FoodEntry.timestamp].
+  static final timestamp =
+      obx.QueryDateProperty<FoodEntry>(_entities[0].properties[7]);
 }

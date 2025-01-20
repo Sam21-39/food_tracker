@@ -1,7 +1,6 @@
 import 'package:food_tracker/shared/models/food_entry.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:objectbox/objectbox.dart';
 import 'package:food_tracker/objectbox.g.dart';
 
 class ObjectBox {
@@ -28,7 +27,13 @@ class ObjectBox {
 
   int addFoodEntry(FoodEntry entry) => foodEntryBox.put(entry);
 
-  List<FoodEntry> getAllFoodEntries() => foodEntryBox.getAll();
+  List<FoodEntry> getAllFoodEntries() {
+    return foodEntryBox.getAll();
+  }
+
+  Future<void> storeFoodEntry(FoodEntry entry) async {
+    foodEntryBox.put(entry);
+  }
 
   bool deleteFoodEntry(int id) => foodEntryBox.remove(id);
 

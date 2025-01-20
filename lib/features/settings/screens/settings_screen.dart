@@ -78,8 +78,42 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(l10n.syncNow),
               subtitle: Text(l10n.syncNowSubtitle),
               trailing: const Icon(Icons.sync),
-              onTap: () {
-                // TODO: Implement manual sync
+              onTap: () async {
+                final objectBox =
+                    await ref.read(objectBoxFutureProvider.future);
+                final syncService = ref.read(syncServiceProvider);
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.syncingEntries),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+
+                try {
+                  final entries = objectBox.getAllFoodEntries();
+                  await syncService.syncAllEntries(entries);
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.allEntriesSynced),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.errorOccurred(e.toString())),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
               },
             ),
           const Divider(),
@@ -98,7 +132,7 @@ class SettingsScreen extends ConsumerWidget {
             title: Text(l10n.language),
             subtitle: Text(l10n.selectLanguage),
             trailing: DropdownButton<String>(
-              value: ref.watch(localeProvider)?.languageCode ?? 'en',
+              value: ref.watch(localeProvider).languageCode ?? 'en',
               items: ref
                   .watch(supportedLocalesProvider)
                   .map(

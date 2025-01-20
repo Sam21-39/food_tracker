@@ -3,6 +3,7 @@ import 'package:food_tracker/shared/models/food_entry.dart';
 import 'package:food_tracker/core/providers/objectbox_provider.dart';
 import 'package:food_tracker/core/providers/sync_provider.dart';
 import 'package:food_tracker/core/providers/auth_provider.dart';
+import 'package:flutter/foundation.dart';
 
 final foodEntriesProvider = StreamProvider<List<FoodEntry>>((ref) async* {
   final objectBox = await ref.watch(objectBoxFutureProvider.future);
@@ -19,21 +20,26 @@ class FoodEntryService {
   FoodEntryService(this._ref);
 
   Future<void> addFoodEntry(FoodEntry entry) async {
-    final objectBox = await _ref.read(objectBoxFutureProvider.future);
-    final autoSync = _ref.read(autoSyncProvider);
-    final authState = _ref.read(authStateProvider);
+    try {
+      final objectBox = await _ref.read(objectBoxFutureProvider.future);
+      final autoSync = _ref.read(autoSyncProvider);
+      final authState = _ref.read(authStateProvider);
 
-    // Save to local storage
-    objectBox.addFoodEntry(entry);
-
-    // Sync with cloud if auto-sync is enabled and user is signed in
-    if (autoSync && authState.isSignedIn) {
-      final syncService = _ref.read(syncServiceProvider);
-      await syncService.syncFoodEntry(entry);
-
-      // Update sync state in local storage
-      entry.isSynced = true;
+      // Save to local storage
       objectBox.addFoodEntry(entry);
+
+      // Sync with cloud if auto-sync is enabled and user is signed in
+      if (autoSync && authState.isSignedIn) {
+        final syncService = _ref.read(syncServiceProvider);
+        await syncService.syncFoodEntry(entry);
+
+        // Update sync state in local storage
+        entry.isSynced = true;
+        objectBox.addFoodEntry(entry);
+      }
+    } catch (e) {
+      debugPrint('Error adding food entry: $e');
+      rethrow;
     }
   }
 

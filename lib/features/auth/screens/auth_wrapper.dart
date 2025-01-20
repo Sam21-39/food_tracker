@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:food_tracker/core/providers/auth_provider.dart';
 import 'package:food_tracker/features/auth/screens/sign_in_screen.dart';
-import 'package:food_tracker/main.dart';
 
 class AuthWrapper extends ConsumerWidget {
   final Widget child;

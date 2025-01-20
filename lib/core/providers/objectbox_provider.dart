@@ -3,7 +3,11 @@ import 'package:food_tracker/core/config/objectbox.dart';
 import 'package:food_tracker/shared/models/food_entry.dart';
 
 final objectBoxProvider = Provider<ObjectBox>((ref) {
-  throw UnimplementedError();
+  final objectBox = ref.watch(objectBoxFutureProvider).value;
+  if (objectBox == null) {
+    throw StateError('ObjectBox is not initialized');
+  }
+  return objectBox;
 });
 
 final objectBoxFutureProvider = FutureProvider<ObjectBox>((ref) async {
