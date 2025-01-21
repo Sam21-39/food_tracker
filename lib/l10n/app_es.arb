@@ -1,0 +1,58 @@
+{
+  "appTitle": "Registro de Alimentos",
+  "settings": "Ajustes",
+  "account": "Cuenta",
+  "signedIn": "Conectado",
+  "signIn": "Iniciar Sesión",
+  "signUp": "Registrarse",
+  "darkMode": "Modo Oscuro",
+  "autoSync": "Sincronización Automática",
+  "syncNow": "Sincronizar Ahora",
+  "syncComplete": "Sincronización Completa",
+  "syncError": "Error de sincronización: {error}",
+  "@syncError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "language": "Idioma",
+  "selectLanguage": "Seleccionar Idioma",
+  "about": "Acerca de",
+  "email": "Correo Electrónico",
+  "password": "Contraseña",
+  "emailRequired": "El correo electrónico es requerido",
+  "invalidEmail": "Correo electrónico inválido",
+  "passwordRequired": "La contraseña es requerida",
+  "passwordTooShort": "La contraseña debe tener al menos 6 caracteres",
+  "haveAccount": "¿Ya tienes una cuenta? Inicia sesión",
+  "createAccount": "¿No tienes una cuenta? Regístrate",
+  "addFoodEntry": "Agregar Alimento",
+  "foodName": "Nombre del Alimento",
+  "foodNameRequired": "El nombre del alimento es requerido",
+  "category": "Categoría",
+  "categoryRequired": "La categoría es requerida",
+  "selectCategory": "Seleccionar Categoría",
+  "vegetarian": "Vegetariano",
+  "dateAndTime": "Fecha y Hora",
+  "saveEntry": "Guardar",
+  "entrySavedAndSynced": "Entrada guardada y sincronizada",
+  "entrySavedLocally": "Entrada guardada localmente",
+  "errorOccurred": "Error: {error}",
+  "@errorOccurred": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "deleteEntry": "Eliminar Entrada",
+  "deleteEntryConfirm": "¿Estás seguro de que quieres eliminar esta entrada?",
+  "cancel": "Cancelar",
+  "noFoodEntries": "No hay entradas de alimentos",
+  "statistics": "Estadísticas",
+  "profile": "Perfil"
+} 

@@ -65,5 +65,15 @@
   "delete": "মুছে ফেলুন",
   "cancel": "বাতিল",
   "deleteEntry": "এন্ট্রি মুছুন",
-  "deleteEntryConfirm": "আপনি কি নিশ্চিত যে আপনি এই এন্ট্রিটি মুছে ফেলতে চান?"
+  "deleteEntryConfirm": "আপনি কি নিশ্চিত যে আপনি এই এন্ট্রিটি মুছে ফেলতে চান?",
+  "darkMode": "ডার্ক মোড",
+  "syncComplete": "সিঙ্ক সম্পূর্ণ",
+  "syncError": "সিঙ্ক ত্রুটি: {error}",
+  "@syncError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 } 

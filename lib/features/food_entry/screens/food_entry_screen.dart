@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_tracker/core/blocs/food_entry/food_entry_cubit.dart';
+import 'package:food_tracker/core/blocs/sync/sync_cubit.dart';
 import 'package:food_tracker/shared/models/food_entry.dart';
-import 'package:food_tracker/core/providers/food_entry_provider.dart';
-import 'package:food_tracker/core/providers/sync_provider.dart';
 import 'package:food_tracker/features/food_entry/widgets/category_selector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class FoodEntryScreen extends ConsumerStatefulWidget {
+class FoodEntryScreen extends StatefulWidget {
   final FoodEntry? entry;
 
   const FoodEntryScreen({
@@ -15,10 +15,10 @@ class FoodEntryScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<FoodEntryScreen> createState() => _FoodEntryScreenState();
+  State<FoodEntryScreen> createState() => _FoodEntryScreenState();
 }
 
-class _FoodEntryScreenState extends ConsumerState<FoodEntryScreen> {
+class _FoodEntryScreenState extends State<FoodEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late bool _isVegetarian;
@@ -66,12 +66,13 @@ class _FoodEntryScreenState extends ConsumerState<FoodEntryScreen> {
       );
 
       try {
-        await ref.read(foodEntryServiceProvider).addFoodEntry(entry);
+        final foodEntryCubit = context.read<FoodEntryCubit>();
+        await foodEntryCubit.addEntry(entry);
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(ref.read(autoSyncProvider)
+              content: Text(context.read<SyncCubit>().autoSync
                   ? l10n.entrySavedAndSynced
                   : l10n.entrySavedLocally),
               behavior: SnackBarBehavior.floating,

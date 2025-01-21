@@ -59,5 +59,21 @@
     "placeholders": {
       "error": {}
     }
-  }
+  },
+  "darkMode": "डार्क मोड",
+  "syncComplete": "सिंक पूर्ण",
+  "syncError": "सिंक त्रुटि: {error}",
+  "@syncError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryRequired": "श्रेणी आवश्यक है",
+  "edit": "संपादित करें",
+  "delete": "हटाएं",
+  "deleteEntry": "प्रविष्टि हटाएं",
+  "deleteEntryConfirm": "क्या आप वाकई इस प्रविष्टि को हटाना चाहते हैं?",
+  "cancel": "रद्द करें"
 } 

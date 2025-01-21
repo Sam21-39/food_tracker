@@ -1,30 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:food_tracker/core/providers/objectbox_provider.dart';
-import 'package:food_tracker/core/providers/sync_provider.dart';
-import 'package:food_tracker/core/providers/localization_provider.dart';
-import 'package:food_tracker/core/providers/theme_provider.dart';
-import 'package:food_tracker/core/providers/auth_provider.dart';
-import 'package:food_tracker/core/services/notification_service.dart';
-import 'package:food_tracker/features/auth/screens/sign_in_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_tracker/core/blocs/auth/auth_cubit.dart';
+import 'package:food_tracker/core/blocs/localization/localization_cubit.dart';
+import 'package:food_tracker/core/blocs/sync/sync_cubit.dart';
+import 'package:food_tracker/core/blocs/sync/sync_state.dart';
+import 'package:food_tracker/core/blocs/theme/theme_cubit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final notificationsEnabledProvider = StateProvider<bool>((ref) => true);
-
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final authState = ref.watch(authStateProvider);
-    final isDarkMode = ref.watch(themeProvider);
-    final autoSync = ref.watch(autoSyncProvider);
-    final theme = Theme.of(context);
-    final currentLocale = ref.watch(localeProvider);
-    final supportedLocales = ref.watch(supportedLocalesProvider);
-    final notificationsEnabled = ref.watch(notificationsEnabledProvider);
+    final authCubit = context.read<AuthCubit>();
+    final syncCubit = context.read<SyncCubit>();
+    final localizationCubit = context.read<LocalizationCubit>();
 
     return Scaffold(
       appBar: AppBar(
@@ -34,196 +26,142 @@ class SettingsScreen extends ConsumerWidget {
         children: [
           ListTile(
             title: Text(l10n.account),
-            subtitle: Text(
-              authState.isSignedIn ? l10n.signedIn : l10n.signInSubtitle,
+            subtitle: Text(authCubit.isSignedIn ? l10n.signedIn : l10n.signIn),
+            trailing: IconButton(
+              icon: Icon(authCubit.isSignedIn ? Icons.logout : Icons.login),
+              onPressed: () async {
+                if (authCubit.isSignedIn) {
+                  await authCubit.signOut();
+                  Navigator.pop(context);
+                } else {
+                  // TODO: Navigate to sign in screen
+                }
+              },
             ),
-            trailing: authState.isSignedIn
-                ? IconButton(
-                    icon: const Icon(Icons.logout),
-                    onPressed: () {
-                      ref.read(authStateProvider.notifier).signOut();
-                    },
-                  )
-                : const Icon(Icons.chevron_right),
-            onTap: authState.isSignedIn
-                ? null
-                : () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignInScreen(),
-                      ),
-                    );
-                  },
           ),
           const Divider(),
-          ListTile(
-            title: Text(l10n.syncSettings),
-            subtitle: Text(
-              authState.isSignedIn
-                  ? l10n.autoSyncSubtitle
-                  : l10n.syncUnavailable,
-            ),
-            trailing: Switch(
-              value: autoSync && authState.isSignedIn,
-              onChanged: authState.isSignedIn
-                  ? (value) {
-                      ref.read(autoSyncProvider.notifier).state = value;
-                    }
-                  : null,
-            ),
+          BlocBuilder<ThemeCubit, bool>(
+            builder: (context, isDarkMode) {
+              return SwitchListTile(
+                title: const Text('Dark Mode'),
+                value: isDarkMode,
+                onChanged: (value) {
+                  context.read<ThemeCubit>().setDarkMode(value);
+                },
+              );
+            },
           ),
-          if (authState.isSignedIn && !autoSync)
-            ListTile(
-              title: Text(l10n.syncNow),
-              subtitle: Text(l10n.syncNowSubtitle),
-              trailing: const Icon(Icons.sync),
-              onTap: () async {
-                final objectBox =
-                    await ref.read(objectBoxFutureProvider.future);
-                final syncService = ref.read(syncServiceProvider);
-
+          const Divider(),
+          BlocBuilder<SyncCubit, SyncState>(
+            builder: (context, state) {
+              return SwitchListTile(
+                title: Text(l10n.autoSync),
+                value: syncCubit.autoSync,
+                onChanged: (value) {
+                  syncCubit.setAutoSync(value);
+                },
+              );
+            },
+          ),
+          ListTile(
+            title: Text(l10n.syncNow),
+            trailing: const Icon(Icons.sync),
+            onTap: () async {
+              try {
+                await syncCubit.syncAllEntries();
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(l10n.syncingEntries),
+                      content: Text(l10n.syncComplete),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
                 }
-
-                try {
-                  final entries = objectBox.getAllFoodEntries();
-                  await syncService.syncAllEntries(entries);
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.allEntriesSynced),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.errorOccurred(e.toString())),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                }
-              },
-            ),
-          const Divider(),
-          ListTile(
-            title: Text(l10n.appearance),
-            subtitle: Text(l10n.themeSubtitle),
-            trailing: Switch(
-              value: isDarkMode,
-              onChanged: (value) {
-                ref.read(themeProvider.notifier).state = value;
-              },
-            ),
-          ),
-          const Divider(),
-          ListTile(
-            title: Text(l10n.language),
-            subtitle: Text(l10n.selectLanguage),
-            trailing: DropdownButton<String>(
-              value: ref.watch(localeProvider).languageCode ?? 'en',
-              items: ref
-                  .watch(supportedLocalesProvider)
-                  .map(
-                    (locale) => DropdownMenuItem(
-                      value: locale.languageCode,
-                      child: Text(locale.languageCode.toUpperCase()),
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.syncError(e.toString())),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: Colors.red,
                     ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  ref.read(localeProvider.notifier).state = Locale(value);
+                  );
                 }
-              },
-            ),
+              }
+            },
           ),
           const Divider(),
-          _buildSection(
-            theme,
-            title: l10n.notifications,
-            children: [
-              SwitchListTile(
-                title: Text(l10n.mealReminders),
-                subtitle: Text(l10n.mealRemindersSubtitle),
-                value: notificationsEnabled,
-                onChanged: (value) async {
-                  final notificationService = NotificationService();
-                  if (value) {
-                    await notificationService.scheduleDailyReminder(
-                      hour: 12,
-                      minute: 0,
-                      title: l10n.appTitle,
-                      body: l10n.mealRemindersSubtitle,
-                    );
-                  } else {
-                    await notificationService.cancelAllReminders();
-                  }
-                  ref.read(notificationsEnabledProvider.notifier).state = value;
+          BlocBuilder<LocalizationCubit, Locale>(
+            builder: (context, currentLocale) {
+              return ListTile(
+                title: Text(l10n.language),
+                subtitle: Text(_getLanguageName(currentLocale.languageCode)),
+                trailing: const Icon(Icons.language),
+                onTap: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(l10n.selectLanguage),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children:
+                              localizationCubit.supportedLocales.map((locale) {
+                            return ListTile(
+                              title:
+                                  Text(_getLanguageName(locale.languageCode)),
+                              trailing: locale.languageCode ==
+                                      currentLocale.languageCode
+                                  ? const Icon(Icons.check)
+                                  : null,
+                              onTap: () {
+                                localizationCubit.setLocale(locale);
+                                Navigator.pop(context);
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    },
+                  );
                 },
-              ),
-            ],
+              );
+            },
           ),
-          _buildSection(
-            theme,
-            title: l10n.about,
-            children: [
-              ListTile(
-                title: Text(l10n.version),
-                subtitle: const Text('1.0.0'),
-              ),
-              ListTile(
-                title: Text(l10n.termsOfService),
-                onTap: () => _launchURL('https://example.com/terms'),
-              ),
-              ListTile(
-                title: Text(l10n.privacyPolicy),
-                onTap: () => _launchURL('https://example.com/privacy'),
-              ),
-            ],
+          const Divider(),
+          ListTile(
+            title: Text(l10n.about),
+            onTap: () {
+              showAboutDialog(
+                context: context,
+                applicationName: l10n.appTitle,
+                applicationVersion: '1.0.0',
+                applicationLegalese: '© 2024',
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      launchUrl(Uri.parse(
+                          'https://github.com/yourusername/food_tracker'));
+                    },
+                    child: const Text('GitHub'),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSection(
-    ThemeData theme, {
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Text(
-            title,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ),
-        ...children,
-        const Divider(),
-      ],
-    );
-  }
-
-  Future<void> _launchURL(String url) async {
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
+  String _getLanguageName(String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return 'English';
+      case 'es':
+        return 'Español';
+      default:
+        return languageCode;
     }
   }
 }

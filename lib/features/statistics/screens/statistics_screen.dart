@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:food_tracker/core/providers/objectbox_provider.dart';
+import 'package:food_tracker/core/blocs/food_entry/food_entry_cubit.dart';
 import 'package:food_tracker/shared/models/food_entry.dart';
 import 'package:intl/intl.dart';
 
-class StatisticsScreen extends ConsumerWidget {
+class StatisticsScreen extends StatelessWidget {
   const StatisticsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final foodEntriesAsync = ref.watch(foodEntriesStreamProvider);
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<FoodEntry>>(
+      stream: context.read<FoodEntryCubit>().watchEntries(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return foodEntriesAsync.when(
-      data: (entries) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        final entries = snapshot.data ?? [];
         if (entries.isEmpty) {
           return const Center(
             child: Text('Add some meals to see your statistics!'),
@@ -70,10 +78,6 @@ class StatisticsScreen extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Text('Error: $error'),
-      ),
     );
   }
 

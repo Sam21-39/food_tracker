@@ -33,7 +33,7 @@ class SyncService {
       final data = {
         'uuid': entry.uuid,
         'name': entry.name,
-        'category': entry.category,
+        'food_category': entry.category,
         'is_vegetarian': entry.isVegetarian,
         'image_url': entry.imageUrl,
         'timestamp': entry.timestamp.toIso8601String(),

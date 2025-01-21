@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:food_tracker/core/providers/auth_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_tracker/core/blocs/auth/auth_cubit.dart';
+import 'package:food_tracker/core/blocs/auth/auth_state.dart';
 import 'package:food_tracker/features/auth/screens/sign_in_screen.dart';
 
-class AuthWrapper extends ConsumerWidget {
+class AuthWrapper extends StatelessWidget {
   final Widget child;
 
   const AuthWrapper({
@@ -12,32 +13,34 @@ class AuthWrapper extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authStateProvider);
-
-    if (authState.error != null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Error: ${authState.error}'),
-              ElevatedButton(
-                onPressed: () {
-                  ref.invalidate(authStateProvider);
-                },
-                child: const Text('Retry'),
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        if (state is AuthError) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${state.message}'),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthCubit>().signOut();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+          );
+        }
 
-    if (!authState.isSignedIn) {
-      return const SignInScreen();
-    }
+        if (state is! AuthAuthenticated) {
+          return const SignInScreen();
+        }
 
-    return child;
+        return child;
+      },
+    );
   }
 }

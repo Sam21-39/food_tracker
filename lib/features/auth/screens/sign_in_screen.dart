@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:food_tracker/core/providers/auth_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_tracker/core/blocs/auth/auth_cubit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class SignInScreen extends ConsumerStatefulWidget {
+class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 
   @override
-  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends ConsumerState<SignInScreen> {
+class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -25,27 +25,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
+      final authCubit = context.read<AuthCubit>();
       if (_isSignUp) {
-        await ref.read(authStateProvider.notifier).signUp(
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-            );
+        await authCubit.signUp(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
       } else {
-        await ref.read(authStateProvider.notifier).signIn(
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-            );
+        await authCubit.signIn(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
       }
 
-      final error = ref.read(authStateProvider).error;
-      if (error != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      } else if (mounted) {
+      if (mounted) {
         Navigator.pop(context);
       }
     }
